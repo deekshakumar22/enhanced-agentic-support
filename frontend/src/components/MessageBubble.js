@@ -1,8 +1,9 @@
-// copy into enhanced-agentic-support/frontend/src/components/MessageBubble.js
 import React from 'react';
 
 export default function MessageBubble({ message }) {
   const isUser = message.role === 'user';
+  const speaker = isUser ? 'You' : (message.agent || 'Agent');
+
   return (
     <div style={{
       textAlign: isUser ? 'right' : 'left',
@@ -16,9 +17,21 @@ export default function MessageBubble({ message }) {
         borderRadius: 16,
         maxWidth: '80%'
       }}>
+        {/* show speaker label for non-user */}
+        {!isUser && (
+          <div style={{
+            fontSize: '0.75em',
+            marginBottom: 4,
+            fontWeight: 500,
+            opacity: 0.7
+          }}>
+            {speaker}
+          </div>
+        )}
         {message.content}
       </div>
     </div>
   );
 }
+
 

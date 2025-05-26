@@ -1,4 +1,3 @@
-// copy into enhanced-agentic-support/frontend/src/hooks/useChat.js
 import { useState } from 'react';
 import { chatApi } from '../services/api';
 
@@ -10,12 +9,24 @@ export function useChat() {
 
   async function sendMessage(text) {
     setIsTyping(true);
-    setMessages(prev => [...prev, { role:'user', content:text }]);
-    const res = await chatApi.sendMessage(text, conversationId);
+    // add user message
+    setMessages(prev => [...prev, { role: 'user', content: text }]);
 
-    setConversationId(res.conversationId);
-    setCurrentAgent(res.agent.name);
-    setMessages(prev => [...prev, { role:'assistant', content:res.reply }]);
+    // call the API
+    const res = await chatApi.sendMessage(text, conversationId);
+    const { conversationId: newId, primary, secondary } = res;
+
+    // update state
+    setConversationId(newId);
+    setCurrentAgent(primary.name);
+    setMessages(prev => [
+      ...prev,
+      // primary reply
+      { role: 'assistant', content: primary.reply, agent: primary.name },
+      // optional: show each secondary insight as its own bubble
+      ...secondary.map(s => ({ role: 'assistant', content: s.reply, agent: s.agent }))
+    ]);
+
     setIsTyping(false);
   }
 
